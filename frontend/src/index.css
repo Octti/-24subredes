@@ -101,3 +101,48 @@ dl.res { display: grid; grid-template-columns: repeat(2, 1fr); column-gap: 3rem;
   dl.res { grid-template-columns: 1fr; }
   .preview, .plans { grid-template-columns: 1fr; }
 }
+
+/* Estilos para Preguntas Frecuentes (FAQ) */
+.faq details {
+  margin-top: 0.6rem;
+  border: 1px solid var(--ln);
+  border-radius: 16px;
+  background: var(--pn);
+  overflow: hidden;
+  transition: background-color 0.2s ease;
+}
+
+.faq summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.9rem 1.25rem;
+  cursor: pointer;
+  font-weight: 700;
+  color: var(--tx);
+  list-style: none;
+}
+
+.faq summary::-webkit-details-marker {
+  display: none;
+}
+
+.faq summary::after {
+  content: "+";
+  color: var(--mu);
+  font-size: 1.3rem;
+  line-height: 1;
+}
+
+.faq details[open] summary::after {
+  content: "−";
+}
+
+.faq p {
+  margin: 0;
+  padding: 0 1.25rem 1.1rem;
+  color: var(--mu);
+  max-width: 70ch;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
