@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import './App.css'; // Acordate de pegar todo el CSS del <style> de tu HTML acá
 import { Vlsm } from './components/Vlsm';
-// import { Calculadora } from './components/Calculadora'; // Lo descomentamos cuando lo hagamos
-// import { Proyectos } from './components/Proyectos'; // Lo descomentamos cuando lo hagamos
+import { Calculadora } from './components/Calculadora.tsx'; // Lo descomentamos cuando lo hagamos
+import { Faq } from './components/Faq.tsx';
+//import { Proyectos } from './components/Proyectos'; // Lo descomentamos cuando lo hagamos
 
 function App() {
   const [activeTab, setActiveTab] = useState<'calculadora' | 'vlsm' | 'proyectos'>('vlsm');
@@ -74,13 +75,7 @@ function App() {
       </header>
 
       <main>
-        {activeTab === 'calculadora' && (
-          <section id="v-calculadora" style={{ padding: '1.5rem 1rem', maxWidth: '68rem', margin: 'auto' }}>
-            <h2>Calculadora de Subredes (En construcción 🚧)</h2>
-            <p className="sub">Acá vamos a meter el componente de la calculadora de IPs.</p>
-          </section>
-        )}
-
+        {activeTab === 'calculadora' && <Calculadora />}
         {activeTab === 'vlsm' && <Vlsm />}
 
         {activeTab === 'proyectos' && (

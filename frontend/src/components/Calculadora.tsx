@@ -1,9 +1,10 @@
 import { useCalculadora } from '../hooks/useCalculadora';
+import { Faq } from './Faq';
 
 export function Calculadora() {
   const { ipStr, setIpStr, cidrStr, setCidrStr, result } = useCalculadora();
 
-  // Función para renderizar los octetos (los cuadraditos interactivos)
+  // Función para renderizar los octetos
   const renderBits = () => {
     if (!result.bin) return null;
     const octets = [];
@@ -126,6 +127,9 @@ export function Calculadora() {
         </svg>
       </div>
       
+      <Faq />
+
+
       <h2>Planes</h2>
       <div className="plans">
         <div className="plan">
