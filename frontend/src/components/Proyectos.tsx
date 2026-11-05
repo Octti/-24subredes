@@ -78,7 +78,7 @@ export function Proyectos() {
           <li 
             className="empty" 
             style={{ 
-              color: 'var(--mu)', 
+              color: 'var(--mu)',       
               padding: '.9rem 1.1rem', 
               border: '1px dashed var(--ln)', 
               borderRadius: '14px', 
