@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
-import './App.css'; // Acordate de pegar todo el CSS del <style> de tu HTML acá
+import './App.css'; 
 import { Vlsm } from './components/Vlsm';
-import { Calculadora } from './components/Calculadora.tsx'; // Lo descomentamos cuando lo hagamos
-import { Faq } from './components/Faq.tsx';
-//import { Proyectos } from './components/Proyectos'; // Lo descomentamos cuando lo hagamos
+import { Calculadora } from './components/Calculadora.tsx';
+import { Proyectos } from './components/Proyectos.tsx';
 
 function App() {
   const [activeTab, setActiveTab] = useState<'calculadora' | 'vlsm' | 'proyectos'>('vlsm');
@@ -78,17 +77,7 @@ function App() {
         {activeTab === 'calculadora' && <Calculadora />}
         {activeTab === 'vlsm' && <Vlsm />}
 
-        {activeTab === 'proyectos' && (
-          <section id="v-proyectos" style={{ padding: '1.5rem 1rem', maxWidth: '68rem', margin: 'auto' }}>
-            <h1>Mis proyectos</h1>
-            <p className="sub" id="plan">
-              {user ? "Plan Free: 0 de 5 proyectos." : "Iniciá sesión para guardar y recuperar tus proyectos."}
-            </p>
-            <ul className="plist" id="plist">
-              <li className="empty">Todavía no guardaste nada. Hacé un cálculo y tocá Guardar.</li>
-            </ul>
-          </section>
-        )}
+        {activeTab === 'proyectos' && <Proyectos/>}
       </main>
 
       <footer>

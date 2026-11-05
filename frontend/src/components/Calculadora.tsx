@@ -1,8 +1,17 @@
 import { useCalculadora } from '../hooks/useCalculadora';
 import { Faq } from './Faq';
 
+// Funciones auxiliares internas para calcular la lista de hosts sin depender de tu hook
+const ipToNum = (ip: string) => ip.split('.').reduce((acc, octet) => (acc << 8) + parseInt(octet, 10), 0) >>> 0;
+const numToIp = (n: number) => [n >>> 24, (n >>> 16) & 255, (n >>> 8) & 255, n & 255].join(".");
+
 export function Calculadora() {
+  // Consumimos tu hook exactamente como lo tenés definido
   const { ipStr, setIpStr, cidrStr, setCidrStr, result } = useCalculadora();
+
+  const handleCopy = (text: string) => {
+    navigator.clipboard.writeText(text);
+  };
 
   // Función para renderizar los octetos
   const renderBits = () => {
@@ -24,7 +33,7 @@ export function Calculadora() {
         );
       }
       octets.push(
-        <div key={o} className="flex flex-col gap-1">
+        <div key={o} style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
           <div className="oct">{bits}</div>
           <div className="dec">{(result.ipInt! >>> (24 - o * 8)) & 255}</div>
         </div>
@@ -32,6 +41,10 @@ export function Calculadora() {
     }
     return octets;
   };
+
+  // Preparar cálculos numéricos seguros para la tabla de hosts
+  const numericHosts = result.hosts ? parseInt(result.hosts.replace(/\./g, '')) : 0;
+  const firstHostInt = result.firstHost ? ipToNum(result.firstHost) : 0;
 
   return (
     <section>
@@ -45,22 +58,23 @@ export function Calculadora() {
             value={ipStr} 
             onChange={e => setIpStr(e.target.value)} 
             placeholder="192.168.10.37" 
+            id="ip"
           />
           <span className="slash">/</span>
           <input 
             className="m" 
             value={cidrStr} 
             onChange={e => setCidrStr(e.target.value)} 
-            style={{ width: '4rem' }} 
+            style={{ width: '4.4rem' }} 
             maxLength={2} 
+            id="cidr"
           />
         </div>
-        {/* Acá llamamos al error de la nueva forma: result.err */}
         {result.err && <p className="err">{result.err}</p>}
       </div>
 
-      {!result.err && (
-        <div>
+      {!result.err && result.bin && (
+        <div id="out">
           <div className="bits">{renderBits()}</div>
           <div className="legend">
             <span><i style={{ background: 'var(--net)' }}></i>Bits de red</span>
@@ -69,25 +83,73 @@ export function Calculadora() {
           </div>
 
           <dl className="res">
-            <div className="item"><span className="k">Dirección de red</span><span className="v mono">{result.network}</span></div>
-            <div className="item"><span className="k">Máscara</span><span className="v mono">{result.netmask}</span></div>
-            <div className="item"><span className="k">Wildcard</span><span className="v mono">{result.wildcard}</span></div>
-            <div className="item"><span className="k">Broadcast</span><span className="v mono">{result.broadcast}</span></div>
-            <div className="item"><span className="k">Primer host</span><span className="v mono">{result.firstHost}</span></div>
-            <div className="item"><span className="k">Último host</span><span className="v mono">{result.lastHost}</span></div>
-            <div className="item"><span className="k">Hosts útiles</span><span className="v mono">{result.hosts}</span></div>
-            <div className="item"><span className="k">Tipo</span><span className="v mono">{result.type}</span></div>
+            <button className="item" onClick={() => handleCopy(`${result.network}/${result.c}`)}>
+              <span className="k">Dirección de red</span><span className="v mono">{result.network}/{result.c}</span>
+            </button>
+            <button className="item" onClick={() => handleCopy(result.netmask)}>
+              <span className="k">Máscara</span><span className="v mono">{result.netmask}</span>
+            </button>
+            <button className="item" onClick={() => handleCopy(result.wildcard)}>
+              <span className="k">Wildcard</span><span className="v mono">{result.wildcard}</span>
+            </button>
+            <button className="item" onClick={() => handleCopy(result.broadcast)}>
+              <span className="k">Broadcast</span><span className="v mono">{result.broadcast}</span>
+            </button>
+            <button className="item" onClick={() => handleCopy(result.firstHost)}>
+              <span className="k">Primer host</span><span className="v mono">{result.firstHost}</span>
+            </button>
+            <button className="item" onClick={() => handleCopy(result.lastHost)}>
+              <span className="k">Último host</span><span className="v mono">{result.lastHost}</span>
+            </button>
+            <button className="item" onClick={() => handleCopy(result.hosts)}>
+              <span className="k">Hosts útiles</span><span className="v mono">{result.hosts}</span>
+            </button>
+            <button className="item" onClick={() => handleCopy(result.type)}>
+              <span className="k">Tipo</span><span className="v mono">{result.type}</span>
+            </button>
           </dl>
 
           <div className="acts">
             <button className="btn pri">Guardar cálculo</button>
-            <button className="btn">Copiar resumen</button>
-            <button className="btn">Exportar a PDF</button>
+            <button className="btn" onClick={() => handleCopy(`Red: ${result.network}/${result.c}\nMáscara: ${result.netmask}\nBroadcast: ${result.broadcast}\nHosts: ${result.firstHost} a ${result.lastHost} (${result.hosts})`)}>
+              Copiar resumen
+            </button>
+            <button className="btn" onClick={() => window.print()}>Exportar a PDF</button>
           </div>
+
+          <details id="hd">
+            <summary>Lista de hosts</summary>
+            <div className="scroll" id="hosts">
+              <table>
+                <thead>
+                  <tr><th>N.º</th><th>Dirección</th></tr>
+                </thead>
+                <tbody>
+                  {Array.from({ length: Math.min(numericHosts, 256) }).map((_, k) => (
+                    <tr key={k}>
+                      <td>{k + 1}</td>
+                      <td className="m">{numToIp(firstHostInt + k)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {numericHosts > 256 && (
+                <p className="note">Se muestran los primeros 256 de {result.hosts} hosts.</p>
+              )}
+            </div>
+          </details>
         </div>
       )}
 
-      {/* Diseño del Diagrama de Topología Pro */}
+      <h2>Cómo funciona</h2>
+      <ol className="steps">
+        <li><b>Ingresá una IP y un prefijo</b><span>Por ejemplo 192.168.10.37/26. Los resultados aparecen mientras tipeás.</span></li>
+        <li><b>Ajustá los bits</b><span>Tocá cualquier bit para mover el prefijo y ver cómo cambia la red.</span></li>
+        <li><b>Dividí con VLSM</b><span>Cargá los hosts que necesita cada subred y el planificador las acomoda sin solapamientos.</span></li>
+        <li><b>Guardá y exportá</b><span>Con una cuenta gratuita guardás el proyecto y lo exportás a PDF.</span></li>
+      </ol>
+
+      <h2>Vista previa del plan Pro</h2>
       <div className="preview">
         <div>
           <h3>Diagrama de topología <span className="tag">Pro</span></h3>
@@ -128,18 +190,29 @@ export function Calculadora() {
       </div>
       
       <Faq />
-
-
+      
       <h2>Planes</h2>
       <div className="plans">
         <div className="plan">
           <h3>Free</h3>
-          <p className="text-3xl font-extrabold tracking-tight">USD 0</p>
+          <p className="price">USD 0</p>
+          <ul>
+            <li>Calculadora IPv4 sin límites</li>
+            <li>Planificador VLSM</li>
+            <li>Hasta 5 proyectos guardados</li>
+            <li>Exportar a PDF</li>
+          </ul>
           <button className="btn pri w-fit">Crear cuenta gratis</button>
         </div>
         <div className="plan pro">
           <h3>Pro <span className="tag">Próximamente</span></h3>
-          <p className="text-3xl font-extrabold tracking-tight">Lista de espera</p>
+          <p className="price">Lista de espera</p>
+          <ul>
+            <li>Proyectos ilimitados</li>
+            <li>Diagrama de topología</li>
+            <li>Proyectos compartidos con tu equipo</li>
+            <li>Soporte prioritario</li>
+          </ul>
           <button className="btn w-fit">Avisarme cuando salga</button>
         </div>
       </div>

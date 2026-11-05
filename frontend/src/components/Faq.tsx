@@ -1,6 +1,6 @@
 export function Faq() {
   return (
-    <section className="mt-10 mb-8">
+    <>
       <h2>Preguntas frecuentes</h2>
       <div className="faq">
         <details>
@@ -19,11 +19,7 @@ export function Faq() {
           <summary>¿Soporta IPv6?</summary>
           <p>Por ahora solo IPv4.</p>
         </details>
-        <details>
-          <summary>¿Qué incluye el plan Free?</summary>
-          <p>Calculadora sin límites, planificador VLSM, hasta 5 proyectos guardados y exportación a PDF, todo con una cuenta gratuita.</p>
-        </details>
       </div>
-    </section>
+    </>
   );
 }
